@@ -7,18 +7,27 @@ m.configure_channel(2, 16, False)
 m.configure_channel(3, 16, False)
 m.configure_channel(4, 16, False)
 
+def add_targeting(parent):
+    targeting_parsers = parent.add_subparsers(help="led targeting", dest="targets")
+    
+    all_parser = targeting_parsers.add_parser('all', help="target every led")
+    
+    pixel_parser = targeting_parsers.add_parser('pixel', help="target one pixel")
+    pixel_parser.add_argument("channel", type=int)
+    pixel_parser.add_argument("led", type=int)
+    
+    channel_parser = targeting_parsers.add_parser('channel', help="target every led on a channel")
+    channel_parser.add_argument("channel", type=int)
+    
 mote_parser = argparse.ArgumentParser(description='adjust mote sticks via command line')
+cmd_parsers = mote_parser.add_subparsers(dest="cmd")
 
-targeting_parsers = mote_parser.add_subparsers(help="led targeting", dest="targets")
-all_parser = targeting_parsers.add_parser('all', help="target every led")
-pixel_parser = targeting_parsers.add_parser('pixel', help="target one pixel")
-pixel_parser.add_argument("channel", type=int)
-pixel_parser.add_argument("led", type=int)
-channel_parser = targeting_parsers.add_parser('channel', help="target every led on a channel")
-channel_parser.add_argument("channel", type=int)
+on_parser = cmd_parsers.add_parser("on", help="turn on leds")
+add_targeting(on_parser)
+on_parser.add_argument("color", nargs=3, type=int, help="takes three numbers 0-255 for RGB", default=[255, 255, 255])
 
-mote_parser.add_argument("cmd", choices=["off", "on", "repl"])
-mote_parser.add_argument("--color", "-c", nargs=3, type=int, help="takes three numbers 0-255 for RGB", default=[255, 255, 255])
+off_parser = cmd_parsers.add_parser("off", help="turn off leds")
+add_targeting(off_parser)
 
 options = mote_parser.parse_args()
 
