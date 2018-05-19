@@ -29,33 +29,44 @@ on_parser.add_argument("color", nargs=3, type=int, help="takes three numbers 0-2
 off_parser = cmd_parsers.add_parser("off", help="turn off leds")
 add_targeting(off_parser)
 
+repl_parser = cmd_parsers.add_parser("repl", help="continually run commands")
+
 options = mote_parser.parse_args()
 
-def off():
-    if options.targets == "pixel":
-        m.set_pixel(options.channel, options.led, 0, 0, 0)
-    elif options.targets == "channel":
+def off(args):
+    if args.targets == "pixel":
+        m.set_pixel(args.channel, args.led, 0, 0, 0)
+    elif args.targets == "channel":
         for p in range(16):
-            m.set_pixel(options.channel, p, 0, 0 ,0)
-    elif options.targets == "all":
+            m.set_pixel(args.channel, p, 0, 0 ,0)
+    elif args.targets == "all":
         m.clear()
 
-def on():
-    if options.targets == "pixel":
-        m.set_pixel(options.channel, options.led, options.color[0], options.color[1], options.color[2])
-    elif options.targets == "channel":
+def on(args):
+    if args.targets == "pixel":
+        m.set_pixel(args.channel, args.led, args.color[0], args.color[1], args.color[2])
+    elif args.targets == "channel":
         for p in range(16):
-            m.set_pixel(options.channel, p, options.color[0], options.color[1], options.color[2])
-    elif options.targets == "all":
+            m.set_pixel(args.channel, p, args.color[0], args.color[1], args.color[2])
+    elif args.targets == "all":
         for c in range(1, 5):
             for p in range(16):
-                m.set_pixel(c, p, options.color[0], options.color[1], options.color[2])
+                m.set_pixel(c, p, args.color[0], args.color[1], args.color[2])
 
-if options.cmd == "repl":
-    pass
-else:
-    if options.cmd == "off":
-        off()
-    elif options.cmd == "on":
-        on()
+def run(args):
+    if args.cmd == "off":
+        off(args)
+    elif args.cmd == "on":
+        on(args)
     m.show()
+                
+if options.cmd == "repl":
+    while True:
+        try:
+            text = raw_input(">")
+            cmd = mote_parser.parse_args(text.split())
+            run(cmd)
+        except SystemExit as e:
+            print e
+else:
+    run(options)
