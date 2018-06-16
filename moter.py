@@ -31,6 +31,8 @@ add_targeting(off_parser)
 
 repl_parser = cmd_parsers.add_parser("repl", help="continually run commands")
 
+night_parser = cmd_parsers.add_parser("night", help="enter night mode")
+
 options = mote_parser.parse_args()
 
 def off(args):
@@ -54,6 +56,11 @@ def on(args):
                 m.set_pixel(c, p, args.color[0], args.color[1], args.color[2])
 
 def run(args):
+    if args.cmd == "night":
+        args.cmd = "on"
+        args.targets = "all"
+        args.color = [255, 50, 0]
+        
     if args.cmd == "off":
         off(args)
     elif args.cmd == "on":
